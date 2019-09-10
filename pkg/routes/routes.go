@@ -5,10 +5,6 @@ Constants file for the route methods
 */
 package routes
 
-import (
-	"fmt"
-)
-
 const (
 	LATEST   = "/latest"
 	DOWNLOAD = "/download"

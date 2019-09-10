@@ -23,7 +23,6 @@ func ParseVersion(s string) (Version, error) {
 	return Version(v), err
 }
 
-
 // embedded in the code here for now,
 // maybe as a command line argument later at build time
 const current Version = 1.0
