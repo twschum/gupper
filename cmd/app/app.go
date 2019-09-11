@@ -14,6 +14,8 @@ import (
 var updateUrl = flag.String("url", "localhost", "http update server address")
 var updatePort = flag.String("port", ":8080", "http update server port")
 
+// TODO flag for current version and exit
+
 // TODO https
 
 func main() {
