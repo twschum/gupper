@@ -28,7 +28,8 @@ func Check(current version.Version, base *url.URL) (latest version.Version, err 
 	if err != nil {
 		return current, err
 	}
-	if pkg.Version > current {
+	log.Printf("%v is the latest\n", pkg.Version)
+	if pkg.Version.GT(current) {
 		// download the update to pkg.Filename
 		err = downloadPackage(base, &pkg)
 		if err != nil {

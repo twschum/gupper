@@ -24,10 +24,20 @@ var (
 	packagePath = flag.String("pkgdir", "packages", "Directory at which to store packages")
 )
 
+// TODO cleaner error handling scheme
+
 func main() {
 	flag.Parse()
-	http.Handle(routes.LATEST, store.NewLatestServer(packagePath))
+	http.Handle(routes.LATEST, logRequest(store.NewLatestServer(packagePath)))
 	fs := http.FileServer(http.Dir(*packagePath))
-	http.Handle(routes.DOWNLOAD, http.StripPrefix(routes.DOWNLOAD, fs))
+	fs = http.StripPrefix(routes.DOWNLOAD, fs)
+	http.Handle(routes.DOWNLOAD, logRequest(fs))
 	log.Fatal(http.ListenAndServe(*httpPort, nil))
+}
+
+func logRequest(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("%s %s from %s", r.Method, r.URL, r.RemoteAddr)
+		h.ServeHTTP(w, r)
+	})
 }

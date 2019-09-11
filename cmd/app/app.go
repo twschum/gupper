@@ -25,12 +25,11 @@ var showVersion = flag.Bool("version", false, "print current version and exit")
 
 func main() {
 	flag.Parse()
-	log.Println("Program start")
 	current, err := version.Parse(BuildVersion)
 	if err != nil {
 		log.Fatalf("ERROR: Bad BuildVersion: %v: %v", BuildVersion, err)
 	}
-	fmt.Println("app version:", current)
+	log.Println("app version:", current)
 	if *showVersion {
 		fmt.Println(current)
 		return
@@ -42,7 +41,7 @@ func main() {
 	updated, err := update.Check(current, base)
 	if err != nil {
 		log.Println("ERROR: Unable to update:", err)
-	} else if updated > current {
+	} else if updated.GT(current) {
 		fmt.Println("app version:", updated)
 	} else {
 		log.Println("Up to date")

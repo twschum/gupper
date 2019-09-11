@@ -30,9 +30,10 @@ func NewLatestServer(packagePath *string) *LatestServer {
 
 // ServeHTTP implements the HTTP user interface.
 func (s *LatestServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	log.Printf("%s %s from %s", r.Method, r.URL, r.RemoteAddr)
 	pkg := getLatestPackage(s.PackagePath)
+	log.Printf("%#v\n", pkg)
 	resp, err := json.Marshal(pkg)
+	log.Println(string(resp))
 	if err != nil {
 		log.Fatal(err) // TODO
 	}
@@ -64,7 +65,7 @@ func availablePackages(packagePath *string) (packages []version.PackageMeta) {
 	}
 	// Sort descending by version
 	sort.Slice(packages, func(i, j int) bool {
-		return packages[i].Version > packages[j].Version
+		return packages[i].Version.GT(packages[j].Version)
 	})
 	return packages
 }
