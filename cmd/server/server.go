@@ -20,8 +20,8 @@ import (
 )
 
 var (
-	httpPort    = flag.String("http", ":8080", "Listen address")
-	packagePath = flag.String("packagepath", "packages", "Directory at which to store packages")
+	httpPort    = flag.String("port", ":8080", "Listen address")
+	packagePath = flag.String("pkgdir", "packages", "Directory at which to store packages")
 )
 
 func main() {

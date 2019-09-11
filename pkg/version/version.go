@@ -7,6 +7,7 @@ a semantic versioning object that could handle more realistic use-case
 package version
 
 import (
+	"fmt"
 	"strconv"
 )
 
@@ -19,9 +20,15 @@ func Parse(s string) (Version, error) {
 	return Version(v), err
 }
 
+func (v Version) String() string {
+	return fmt.Sprintf("%.1f", v)
+}
+
 type PackageMeta struct {
 	Version  Version
 	Filename string
+	// target
+	// hash
 }
 
 func NewPackageMeta(pkgFile *string) (pkg *PackageMeta, err error) {
