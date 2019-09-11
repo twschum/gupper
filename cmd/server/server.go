@@ -21,11 +21,13 @@ import (
 
 var (
 	httpPort    = flag.String("http", ":8080", "Listen address")
-	packagePath = flag.String("packagepath", "./packages/", "Directory at which to store packages")
+	packagePath = flag.String("packagepath", "packages", "Directory at which to store packages")
 )
 
 func main() {
 	flag.Parse()
 	http.Handle(routes.LATEST, store.NewLatestServer(packagePath))
+	fs := http.FileServer(http.Dir(*packagePath))
+	http.Handle(routes.DOWNLOAD, http.StripPrefix(routes.DOWNLOAD, fs))
 	log.Fatal(http.ListenAndServe(*httpPort, nil))
 }
