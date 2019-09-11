@@ -18,21 +18,18 @@ import (
 	"github.com/twschum/gupper/pkg/version"
 )
 
-func Check(buildVersion string, base *url.URL) (latest version.Version) {
+func Check(current version.Version, base *url.URL) (latest version.Version) {
 	// get current version
 	// ask server if it needs to update
-	current, err := version.Parse(buildVersion)
-	if err != nil {
-		log.Printf("ERROR: Bad BuildVersion: %v: %v", buildVersion, err)
-		return version.Bad
-	}
 	pkg, err := latestPkg(base)
 	if err != nil {
 		return current
 	}
 	if pkg.Version > current {
 		// download the update to pkg.Filename
-		downloadPackage(base, &pkg)
+		err = downloadPackage(base, &pkg)
+		if err != nil {
+		}
 		// extract and install the update, replacing current app
 		// exec to new version
 	}
@@ -64,7 +61,9 @@ func latestPkg(base *url.URL) (latest version.PackageMeta, err error) {
 
 // server/download/1.3
 func downloadPackage(base *url.URL, pkg *version.PackageMeta) (err error) {
-	res, err := http.Get(routes.Download(*base, pkg.Filename))
+	download := routes.Download(*base, pkg.Filename)
+	log.Printf("Downloading latest package version %v from %v", pkg.Version, download)
+	res, err := http.Get(download)
 	if err != nil {
 		log.Printf("ERROR: problem contacting update server: %v", err)
 		return
