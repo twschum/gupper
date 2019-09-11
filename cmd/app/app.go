@@ -21,12 +21,11 @@ var updateHost = flag.String("host", "localhost", "http update server address")
 var updatePort = flag.String("port", ":8080", "http update server port (with :)")
 var showVersion = flag.Bool("version", false, "print current version and exit")
 
-// TODO flag for current version and exit
-
 // TODO https
 
 func main() {
 	flag.Parse()
+	log.Println("Program start")
 	current, err := version.Parse(BuildVersion)
 	if err != nil {
 		log.Fatalf("ERROR: Bad BuildVersion: %v: %v", BuildVersion, err)
@@ -38,11 +37,15 @@ func main() {
 	}
 	base, err := url.Parse("http://" + *updateHost + *updatePort)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalln("ERROR: bad update host:", err)
 	}
-	updated := update.Check(current, base)
-	if updated > current {
+	updated, err := update.Check(current, base)
+	if err != nil {
+		log.Println("ERROR: Unable to update:", err)
+	} else if updated > current {
 		fmt.Println("app version:", updated)
+	} else {
+		log.Println("Up to date")
 	}
 	// hook for actual app things
 	fmt.Println("doing useful work now...")

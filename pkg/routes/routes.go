@@ -12,8 +12,8 @@ import (
 
 const (
 	LATEST   = "/latest"
-	DOWNLOAD = "/download"
-	UPLOAD   = "/upload"
+	DOWNLOAD = "/download/"
+	UPLOAD   = "/upload/"
 )
 
 // use copy and return string form
