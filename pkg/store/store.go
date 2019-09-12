@@ -30,7 +30,6 @@ func (s *ListServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err) // TODO
 	}
 	resp, err := json.Marshal(packages)
-	log.Println(string(resp))
 	if err != nil {
 		log.Fatal(err) // TODO
 	}

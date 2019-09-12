@@ -15,8 +15,9 @@ import (
 	"github.com/twschum/gupper/pkg/update"
 )
 
-// set at compile time
+// may set at compile time
 var BuildVersion string = "0.0.0"
+var AppName string = "app"
 
 var updateHost = flag.String("host", "localhost", "http update server address")
 var updatePort = flag.String("port", ":8080", "http update server port (with :)")
@@ -30,16 +31,16 @@ func main() {
 		log.Println("ERROR: bad update host:", err)
 		return
 	}
-	current, err := pkgmeta.ThisPackageMeta(&BuildVersion)
+	current, err := pkgmeta.ThisPackageMeta(&BuildVersion, &AppName)
 	if err != nil {
 		log.Println("ERROR: Unable to determine self version:", err)
 		return
 	}
 	if *showVersion {
-		fmt.Printf("%#v\n", current)
+		fmt.Println(current.Version)
 		return
 	} else {
-		log.Println("app version:", current.Version)
+		log.Println(current)
 	}
 	first := true
 	for *daemonize || first {
@@ -47,13 +48,15 @@ func main() {
 		if err != nil {
 			log.Println("ERROR: Unable to update:", err)
 		} else if updated.GT(current.Version) {
-			fmt.Println("app version:", updated)
+			log.Println(updated)
 		} else {
 			log.Println("Up to date")
 		}
 		// do core app things here
 		fmt.Println("doing useful work now...")
-		time.Sleep(5 * time.Second)
+		if *daemonize {
+			time.Sleep(5 * time.Second)
+		}
 		first = false
 	}
 }

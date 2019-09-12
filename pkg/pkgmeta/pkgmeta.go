@@ -26,7 +26,7 @@ type PackageMeta struct {
 }
 
 func (pkg PackageMeta) String() string {
-	return fmt.Sprintf("%v", pkg)
+	return fmt.Sprintf("%s version %s %s/%s", pkg.App, pkg.Version, pkg.OS, pkg.Arch)
 }
 
 // Package files include all their metadata in the name
@@ -51,9 +51,9 @@ func Parse(pkgFile *string) (pkg PackageMeta, err error) {
 }
 
 // Need to know what package this is to compare for updating
-func ThisPackageMeta(buildVersion *string) (pkg PackageMeta, err error) {
+func ThisPackageMeta(buildVersion *string, appName *string) (pkg PackageMeta, err error) {
 	pkg.Filename = os.Args[0]
-	pkg.App = os.Args[0]
+	pkg.App = *appName
 	pkg.Version, err = version.Parse(*buildVersion)
 	if err != nil {
 		return PackageMeta{}, err
