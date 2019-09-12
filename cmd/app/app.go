@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"log"
 	"net/url"
+	"time"
 
 	"github.com/twschum/gupper/pkg/pkgmeta"
 	"github.com/twschum/gupper/pkg/update"
@@ -20,8 +21,7 @@ var BuildVersion string = "0.0.0"
 var updateHost = flag.String("host", "localhost", "http update server address")
 var updatePort = flag.String("port", ":8080", "http update server port (with :)")
 var showVersion = flag.Bool("version", false, "print current version and exit")
-
-// TODO https
+var daemonize = flag.Bool("daemon", false, "mimic daemon-like behaviour that would periodically check for updates")
 
 func main() {
 	flag.Parse()
@@ -41,14 +41,19 @@ func main() {
 	} else {
 		log.Println("app version:", current.Version)
 	}
-	updated, err := update.Check(&current, base)
-	if err != nil {
-		log.Println("ERROR: Unable to update:", err)
-	} else if updated.GT(current.Version) {
-		fmt.Println("app version:", updated)
-	} else {
-		log.Println("Up to date")
+	first := true
+	for *daemonize || first {
+		updated, err := update.Check(&current, base)
+		if err != nil {
+			log.Println("ERROR: Unable to update:", err)
+		} else if updated.GT(current.Version) {
+			fmt.Println("app version:", updated)
+		} else {
+			log.Println("Up to date")
+		}
+		// do core app things here
+		fmt.Println("doing useful work now...")
+		time.Sleep(5 * time.Second)
+		first = false
 	}
-	// hook for actual app things
-	fmt.Println("doing useful work now...")
 }

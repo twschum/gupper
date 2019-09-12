@@ -94,11 +94,13 @@ func downloadPackage(base *url.URL, pkg *pkgmeta.PackageMeta) (err error) {
 }
 
 func installAndExec(pkg *pkgmeta.PackageMeta) (err error) {
-	// TODO actual install, for now, just try the exec of the package
-	// TODO syscall is frozen as of go 1.3, need to figure out go.sys instead
+	// TODO syscall is frozen as of go 1.3, so for long-term maintance need go.sys pkgs
 	os.Chmod(pkg.Filename, 0755)
-	os.Args[0] = pkg.Filename
-	log.Printf("Calling execve with %#v\n", os.Args)
+	// "install" by mving the downloaded file to the current app
+	// This is atomic but also not forgiving and doens't provide any rollback options
+	// in the even of a "bad file" installed
+	log.Printf("Installing %v to %v\n", pkg.Filename, os.Args[0])
+	os.Rename(pkg.Filename, os.Args[0])
 	log.Printf("Restarting...")
 	err = syscall.Exec(os.Args[0], os.Args, os.Environ())
 	if err != nil {
