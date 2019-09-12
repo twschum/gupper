@@ -2,6 +2,12 @@
 
 # Run the go unit tests
 echo "Starting unit tests"
+go test ./...
+
+unit=$1
+if [ $? -ne 0 ] || [ "$unit" == "-u" ]; then
+    exit
+fi
 
 # Run an end-to-end integration test on the app/server using the local docker host
 echo "Setting up integration test"
@@ -37,6 +43,7 @@ go build -o app -ldflags "-X main.BuildVersion=1.0" cmd/app/app.go
 check "app build"
 
 # should update itself, check the output of --version
+echo "Starting integration test"
 ./app --port :$port
 check "app run"
 output=$(./app -version)

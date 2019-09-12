@@ -1,7 +1,14 @@
 /*
 
-Version is just a number for now, could easily be replaced by
-a semantic versioning object that could handle more realistic use-case
+Basic semantic version objects
+
+Not all parts of a version number are required to create one,
+though they are always displayed
+"1" -> 1.0.0
+"2.1.13" -> 2.1.13
+
+Compares each part of the version
+2.11.0 > 2.3.0
 
 */
 package version
@@ -54,37 +61,30 @@ func (v Version) String() string {
 	return fmt.Sprintf("%d.%d.%d", v.Major, v.Minor, v.Patch)
 }
 
-// Equals checks if v is equal to o.
 func (v Version) EQ(o Version) bool {
 	return (v.Compare(o) == 0)
 }
 
-// NE checks if v is not equal to o.
 func (v Version) NE(o Version) bool {
 	return (v.Compare(o) != 0)
 }
 
-// GT checks if v is greater than o.
 func (v Version) GT(o Version) bool {
 	return (v.Compare(o) == 1)
 }
 
-// GE checks if v is greater than or equal to o.
 func (v Version) GE(o Version) bool {
 	return (v.Compare(o) >= 0)
 }
 
-// LT checks if v is less than o.
 func (v Version) LT(o Version) bool {
 	return (v.Compare(o) == -1)
 }
 
-// LE checks if v is less than or equal to o.
 func (v Version) LE(o Version) bool {
 	return (v.Compare(o) <= 0)
 }
 
-// Compare compares Versions v to o:
 // -1 == v is less than o
 // 0 == v is equal to o
 // 1 == v is greater than o

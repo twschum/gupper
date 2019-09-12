@@ -2,6 +2,11 @@
 
 Module handles updating the client from the server
 
+Only part of the client that talks to the server, is simple enough
+to be replaced with other server endpoints/services/technologies
+implementing an interface for getting a list of available packages,
+and downloading/transferring a specific package
+
 */
 package update
 
@@ -20,9 +25,8 @@ import (
 	"github.com/twschum/gupper/pkg/version"
 )
 
+// Runs the update process, checking, downloading, then installing and restarting
 func Check(current *pkgmeta.PackageMeta, base *url.URL) (latest version.Version, err error) {
-	// get current version
-	// ask server if it needs to update
 	log.Println("Checking for updates")
 	packageList, err := getPackageList(base)
 	if err != nil {
@@ -30,23 +34,19 @@ func Check(current *pkgmeta.PackageMeta, base *url.URL) (latest version.Version,
 	}
 	pkg := latestPackage(current, packageList)
 	if pkg.Version.GT(current.Version) {
-		// download the update to pkg.Filename
 		err = downloadPackage(base, &pkg)
 		if err != nil {
 			return pkg.Version, err
 		}
-		// extract and install the update, replacing current app
-		// exec to new version
 		err = installAndExec(&pkg)
 		if err != nil {
 			return pkg.Version, err
 		}
 	}
-	// return version
 	return pkg.Version, nil
 }
 
-// gets list of package files available on the server
+// Gets list of package files available on the server
 func getPackageList(base *url.URL) (files []string, err error) {
 	res, err := http.Get(routes.List(*base))
 	if err != nil {
@@ -62,18 +62,17 @@ func getPackageList(base *url.URL) (files []string, err error) {
 	return files, nil
 }
 
-// get the latest appropriate PackageMeta from the list of package names
+// Determines the latest appropriate package from the list of package names
 func latestPackage(current *pkgmeta.PackageMeta, packageList []string) pkgmeta.PackageMeta {
 	packages := pkgmeta.AvailablePackages(packageList)
 	return pkgmeta.GetLatestPackage(packages, current)
 }
 
-// server/download/
+// Download and save a package file from the update server
 func downloadPackage(base *url.URL, pkg *pkgmeta.PackageMeta) (err error) {
 	download := routes.Download(*base, pkg.Filename)
 	log.Printf("Downloading latest package version %v from %v", pkg.Version, download)
 	res, err := http.Get(download)
-	//log.Printf("%#v\n", res)
 	if err != nil {
 		log.Printf("ERROR: problem contacting update server: %v", err)
 		return
@@ -82,27 +81,27 @@ func downloadPackage(base *url.URL, pkg *pkgmeta.PackageMeta) (err error) {
 		return
 	}
 	defer res.Body.Close()
-
 	out, err := os.Create(pkg.Filename)
 	if err != nil {
 		return err
 	}
 	defer out.Close()
-
 	_, err = io.Copy(out, res.Body)
 	return err
 }
 
+// "install" by mving the downloaded file to the current app
+// This is atomic but also not forgiving and doesn't provide any rollback options
+// in the even of a "bad file" installed
+// Here is where more complex package archive install functionality could be handled
 func installAndExec(pkg *pkgmeta.PackageMeta) (err error) {
-	// TODO syscall is frozen as of go 1.3, so for long-term maintance need go.sys pkgs
-	os.Chmod(pkg.Filename, 0755)
-	// "install" by mving the downloaded file to the current app
-	// This is atomic but also not forgiving and doens't provide any rollback options
-	// in the even of a "bad file" installed
+	// TODO syscall is frozen as of go 1.3, so for long-term maintenance need go.sys pkgs
 	log.Printf("Installing %v to %v\n", pkg.Filename, os.Args[0])
+	os.Chmod(pkg.Filename, 0755) // TODO err here?
 	os.Rename(pkg.Filename, os.Args[0])
-	log.Printf("Restarting...")
+	log.Println("Restarting...")
 	err = syscall.Exec(os.Args[0], os.Args, os.Environ())
+	log.Println("Automatic restart failed, manual restart required")
 	if err != nil {
 		return err
 	}
