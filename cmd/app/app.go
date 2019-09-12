@@ -10,12 +10,12 @@ import (
 	"log"
 	"net/url"
 
+	"github.com/twschum/gupper/pkg/pkgmeta"
 	"github.com/twschum/gupper/pkg/update"
-	"github.com/twschum/gupper/pkg/version"
 )
 
 // set at compile time
-var BuildVersion string
+var BuildVersion string = "0.0.0"
 
 var updateHost = flag.String("host", "localhost", "http update server address")
 var updatePort = flag.String("port", ":8080", "http update server port (with :)")
@@ -25,23 +25,26 @@ var showVersion = flag.Bool("version", false, "print current version and exit")
 
 func main() {
 	flag.Parse()
-	current, err := version.Parse(BuildVersion)
-	if err != nil {
-		log.Fatalf("ERROR: Bad BuildVersion: %v: %v", BuildVersion, err)
-	}
-	log.Println("app version:", current)
-	if *showVersion {
-		fmt.Println(current)
-		return
-	}
 	base, err := url.Parse("http://" + *updateHost + *updatePort)
 	if err != nil {
-		log.Fatalln("ERROR: bad update host:", err)
+		log.Println("ERROR: bad update host:", err)
+		return
 	}
-	updated, err := update.Check(current, base)
+	current, err := pkgmeta.ThisPackageMeta(&BuildVersion)
+	if err != nil {
+		log.Println("ERROR: Unable to determine self version:", err)
+		return
+	}
+	if *showVersion {
+		fmt.Printf("%#v\n", current)
+		return
+	} else {
+		log.Println("app version:", current.Version)
+	}
+	updated, err := update.Check(&current, base)
 	if err != nil {
 		log.Println("ERROR: Unable to update:", err)
-	} else if updated.GT(current) {
+	} else if updated.GT(current.Version) {
 		fmt.Println("app version:", updated)
 	} else {
 		log.Println("Up to date")

@@ -11,14 +11,13 @@ import (
 )
 
 const (
-	LATEST   = "/latest"
+	LIST     = "/list"
 	DOWNLOAD = "/download/"
-	UPLOAD   = "/upload/"
 )
 
 // use copy and return string form
-func Latest(base url.URL) (route string) {
-	base.Path = LATEST
+func List(base url.URL) (route string) {
+	base.Path = LIST
 	return base.String()
 }
 

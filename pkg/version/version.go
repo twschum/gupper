@@ -13,23 +13,6 @@ import (
 	"strings"
 )
 
-type PackageMeta struct {
-	// TODO need all these things findable in the built package
-	Version  Version
-	Filename string
-	// os
-	// arch
-	// app name
-}
-
-func NewPackageMeta(pkgFile *string) (pkg *PackageMeta, err error) {
-	pkg = new(PackageMeta)
-	pkg.Filename = *pkgFile
-	// TODO strip out the version number once it's not the whole file
-	pkg.Version, err = Parse(*pkgFile)
-	return pkg, err
-}
-
 type Version struct {
 	Major int
 	Minor int

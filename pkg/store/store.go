@@ -9,65 +9,32 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	_ "os"
-	_ "path/filepath"
-	"sort"
-
-	"github.com/twschum/gupper/pkg/version"
 )
 
-// Implement the /latest response
-
-type LatestServer struct {
+// Implements handler that just returns a list of the files available Additional query
+// args could narrow it down with some sort of match string but this is literally as
+// simple as it gets. Let the client figure it out since this could easily be replaced
+type ListServer struct {
 	PackagePath *string
 }
 
-func NewLatestServer(packagePath *string) *LatestServer {
-	s := new(LatestServer)
+func NewListServer(packagePath *string) *ListServer {
+	s := new(ListServer)
 	s.PackagePath = packagePath
 	return s
 }
 
-// ServeHTTP implements the HTTP user interface.
-func (s *LatestServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	pkg := getLatestPackage(s.PackagePath)
-	log.Printf("%#v\n", pkg)
-	resp, err := json.Marshal(pkg)
+func (s *ListServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	packages, err := listFiles(s.PackagePath)
+	if err != nil {
+		log.Fatal(err) // TODO
+	}
+	resp, err := json.Marshal(packages)
 	log.Println(string(resp))
 	if err != nil {
 		log.Fatal(err) // TODO
 	}
 	w.Write(resp)
-}
-
-// Returns a zeroed PackageMeta if none available
-func getLatestPackage(packagePath *string) version.PackageMeta {
-	packages := availablePackages(packagePath)
-	if len(packages) > 0 {
-		return packages[0]
-	}
-	return version.PackageMeta{}
-}
-
-// All available package metadata, sorted by version number
-func availablePackages(packagePath *string) (packages []version.PackageMeta) {
-	files, err := listFiles(packagePath)
-	if err != nil {
-		log.Fatal(err) // TODO
-	}
-	for _, file := range files {
-		pkg, err := version.NewPackageMeta(&file)
-		if err != nil {
-			log.Println("Bad Package: ", err)
-			continue
-		}
-		packages = append(packages, *pkg)
-	}
-	// Sort descending by version
-	sort.Slice(packages, func(i, j int) bool {
-		return packages[i].Version.GT(packages[j].Version)
-	})
-	return packages
 }
 
 // Excludes directories, lexographically sorted by ioutil.ReadDir
@@ -83,5 +50,3 @@ func listFiles(root *string) (files []string, err error) {
 	}
 	return files, nil
 }
-
-// Implement the serving of actual files from the packages dir

@@ -28,7 +28,7 @@ var (
 
 func main() {
 	flag.Parse()
-	http.Handle(routes.LATEST, logRequest(store.NewLatestServer(packagePath)))
+	http.Handle(routes.LIST, logRequest(store.NewListServer(packagePath)))
 	fs := http.FileServer(http.Dir(*packagePath))
 	fs = http.StripPrefix(routes.DOWNLOAD, fs)
 	http.Handle(routes.DOWNLOAD, logRequest(fs))

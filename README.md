@@ -60,21 +60,14 @@ These instructions will get you a copy of the project up and running on your loc
 ### Installing
 
 ```
-pip install -r requirements.txt
 ```
 
 ### Configuration
 
-Configuration for the flask app is contained in a `config.py` and `instance/config.py`. See the [flask config docs](http://flask.pocoo.org/docs/1.0/config/)
-
-This repo includes an example [instance/config_example.py](instance/config_example.py), to be used for all the secret configuration.
-
-For email notifications with the user system and order notifications, an email account with api access will be required. This is easy to do with gmail, and the base configuration assumes as much.
 
 
 ## Deployment
 
-The original version of this site is running on [PythonAnywhere](pythonanywhere.com), which is the author's recommended deployment solution.
 
 ## Built With
 
@@ -83,8 +76,6 @@ The golang standard lib and zero dependencies
 ## Authors
 
 * **Tim Schumacher** - *Core Author* - [twschum](https://github.com/twschum)
-
-See also the list of [contributors](https://github.com/twschum/mix-mind/contributors) who participated in this project.
 
 ## License
 
