@@ -32,6 +32,7 @@ func main() {
 	fs := http.FileServer(http.Dir(*packagePath))
 	fs = http.StripPrefix(routes.DOWNLOAD, fs)
 	http.Handle(routes.DOWNLOAD, logRequest(fs))
+	log.Println("Listening on port", *httpPort)
 	log.Fatal(http.ListenAndServe(*httpPort, nil))
 }
 

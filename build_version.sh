@@ -3,8 +3,12 @@
 
 version=$1
 if [[ -z "$version" ]]; then
-    echo "usage: $0 <version>"
+    echo "usage: $0 <version> [package_dir]"
     exit 1
+fi
+package_dir=$2
+if [[ -z "$package_dir" ]]; then
+    package_dir=packages/
 fi
 package_name=app
 package=cmd/$package_name/$package_name.go
@@ -27,5 +31,5 @@ do
         exit 1
     fi
     echo $output_name
-    mv $output_name packages/
+    mv $output_name $package_dir
 done

@@ -55,6 +55,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 * golang >=1.10
 * bash
+* curl
 * docker for containerized deployment and testing (usable without)
 
 ### Installing
