@@ -29,9 +29,9 @@ function check {
 
 # Make some packages
 mkdir test_pkgs
-bash build_version.sh 1.9.2 test_pkgs/
+bash build_packages.sh 1.9.2 test_pkgs/
 check "build packages"
-bash build_version.sh 1.11 test_pkgs/
+bash build_packages.sh 1.11 test_pkgs/
 check "build packages"
 
 # ephemeral test container that won't interfere with another one running default
