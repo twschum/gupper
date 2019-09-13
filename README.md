@@ -57,7 +57,7 @@ Clone the repo or use `go get`
 go get -d -t github.com/twschum/gupper
 cd $GOPATH/src/github.com/twschum/gupper/
 ```
-Build the app and server
+`setup.sh` will build the app, server, and initial available packages
 
 ### Running
 
