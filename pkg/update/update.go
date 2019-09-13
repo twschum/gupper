@@ -84,11 +84,17 @@ func downloadPackage(repository store.Store, pkg *pkgmeta.PackageMeta) (err erro
 // in the even of a "bad file" installed
 // Here is where more complex package archive install functionality could be handled
 func installAndExec(pkg *pkgmeta.PackageMeta) (err error) {
-	// TODO syscall is frozen as of go 1.3, so for long-term maintenance need go.sys pkgs
 	log.Printf("Installing %v to %v\n", pkg.Filename, os.Args[0])
-	os.Chmod(pkg.Filename, 0755) // TODO err here?
-	os.Rename(pkg.Filename, os.Args[0])
+	err = os.Chmod(pkg.Filename, 0755)
+	if err != nil {
+		return err
+	}
+	err = os.Rename(pkg.Filename, os.Args[0])
+	if err != nil {
+		return err
+	}
 	log.Println("Restarting...")
+	// TODO syscall is frozen as of go 1.3, so for long-term maintenance need go.sys pkgs
 	err = syscall.Exec(os.Args[0], os.Args, os.Environ())
 	log.Println("Automatic restart failed, manual restart required")
 	if err != nil {
