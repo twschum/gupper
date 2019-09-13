@@ -1,51 +1,48 @@
 /*
-Implements really basic interface to a generic filestore
+
+Interface to some system which provides a list of files,
+and allows downloading said file
+
 */
 
 package store
 
 import (
-	"encoding/json"
-	"io/ioutil"
+	"errors"
+	"io"
 	"log"
 	"net/http"
+	"net/url"
+
+	"github.com/twschum/gupper/pkg/routes"
 )
 
-// Implements handler that just returns a list of the files available Additional query
-// args could narrow it down with some sort of match string but this is literally as
-// simple as it gets. Let the client figure it out since this could easily be replaced
-type ListServer struct {
-	PackagePath *string
+type Store interface {
+	// where body is a JSON-encoded array of strings
+	List() (body io.ReadCloser, err error)
+	// where body is a file
+	Download(filename *string) (body io.ReadCloser, err error)
 }
 
-func NewListServer(packagePath *string) *ListServer {
-	s := new(ListServer)
-	s.PackagePath = packagePath
-	return s
+type Fileserver struct {
+	Base url.URL
 }
 
-func (s *ListServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	packages, err := listFiles(s.PackagePath)
-	if err != nil {
-		log.Fatal(err) // TODO
-	}
-	resp, err := json.Marshal(packages)
-	if err != nil {
-		log.Fatal(err) // TODO
-	}
-	w.Write(resp)
+func (fs Fileserver) List() (body io.ReadCloser, err error) {
+	return checkedGet(routes.List(fs.Base))
 }
 
-// Excludes directories, lexographically sorted by ioutil.ReadDir
-func listFiles(root *string) (files []string, err error) {
-	fileInfo, err := ioutil.ReadDir(*root)
+func (fs Fileserver) Download(filename *string) (body io.ReadCloser, err error) {
+	return checkedGet(routes.Download(fs.Base, *filename))
+}
+
+func checkedGet(request string) (body io.ReadCloser, err error) {
+	log.Println("GET from", request)
+	res, err := http.Get(request)
 	if err != nil {
-		return files, err
+		return
+	} else if res.StatusCode != 200 {
+		err = errors.New(res.Status)
 	}
-	for _, file := range fileInfo {
-		if !file.IsDir() {
-			files = append(files, file.Name())
-		}
-	}
-	return files, nil
+	return res.Body, err
 }

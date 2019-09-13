@@ -1,6 +1,6 @@
 /*
 
-Module handles updating the client from the server
+Handles updating the client from the server
 
 Only part of the client that talks to the server, is simple enough
 to be replaced with other server endpoints/services/technologies
@@ -12,29 +12,26 @@ package update
 
 import (
 	"encoding/json"
-	"errors"
 	"io"
 	"log"
-	"net/http"
-	"net/url"
 	"os"
 	"syscall"
 
 	"github.com/twschum/gupper/pkg/pkgmeta"
-	"github.com/twschum/gupper/pkg/routes"
+	"github.com/twschum/gupper/pkg/store"
 	"github.com/twschum/gupper/pkg/version"
 )
 
 // Runs the update process, checking, downloading, then installing and restarting
-func Check(current *pkgmeta.PackageMeta, base *url.URL) (latest version.Version, err error) {
+func Check(repository store.Store, current *pkgmeta.PackageMeta) (latest version.Version, err error) {
 	log.Println("Checking for updates")
-	packageList, err := getPackageList(base)
+	packageList, err := getPackageList(repository)
 	if err != nil {
 		return current.Version, err
 	}
 	pkg := latestPackage(current, packageList)
 	if pkg.Version.GT(current.Version) {
-		err = downloadPackage(base, &pkg)
+		err = downloadPackage(repository, &pkg)
 		if err != nil {
 			return pkg.Version, err
 		}
@@ -47,16 +44,14 @@ func Check(current *pkgmeta.PackageMeta, base *url.URL) (latest version.Version,
 }
 
 // Gets list of package files available on the server
-func getPackageList(base *url.URL) (files []string, err error) {
-	res, err := http.Get(routes.List(*base))
+func getPackageList(repository store.Store) (files []string, err error) {
+	body, err := repository.List()
 	if err != nil {
-		log.Printf("ERROR: problem contacting update server: %v", err)
 		return
 	}
-	defer res.Body.Close()
-	err = json.NewDecoder(res.Body).Decode(&files)
+	defer body.Close()
+	err = json.NewDecoder(body).Decode(&files)
 	if err != nil {
-		log.Printf("ERROR: problem reading response body: %v", err)
 		return
 	}
 	return files, nil
@@ -69,24 +64,18 @@ func latestPackage(current *pkgmeta.PackageMeta, packageList []string) pkgmeta.P
 }
 
 // Download and save a package file from the update server
-func downloadPackage(base *url.URL, pkg *pkgmeta.PackageMeta) (err error) {
-	download := routes.Download(*base, pkg.Filename)
-	log.Printf("Downloading latest package version %v from %v", pkg.Version, download)
-	res, err := http.Get(download)
+func downloadPackage(repository store.Store, pkg *pkgmeta.PackageMeta) (err error) {
+	body, err := repository.Download(&pkg.Filename)
 	if err != nil {
-		log.Printf("ERROR: problem contacting update server: %v", err)
-		return
-	} else if res.StatusCode != 200 {
-		err = errors.New(res.Status)
 		return
 	}
-	defer res.Body.Close()
+	defer body.Close()
 	out, err := os.Create(pkg.Filename)
 	if err != nil {
-		return err
+		return
 	}
 	defer out.Close()
-	_, err = io.Copy(out, res.Body)
+	_, err = io.Copy(out, body)
 	return err
 }
 

@@ -12,7 +12,7 @@ A single package server is accessible via http requests. It can tell a client wh
 
 The app checks for an update on startup by querying the package server for what versions are available. If the app's current version is behind an available package, it will then download the appropriate package for its OS and architecture. The "package" is installed via an atomic mv to replace the currently running binary. To restart, the application leverages the exec system call to start running the newly downloaded binary.
 
-The `update` module and `main` are the only two parts that know there's a specific http server, and `update` encapsulates this s.t. a replacement package repository is easily implemented. It gets the url from `main` which can be specified as a command-line parameter.
+The `store` module and `main` are the only two parts that know there's a specific http server, and `store` encapsulates this s.t. a replacement package repository is easily implemented. The `main` initializes a specific http client.
 
 The app queries the server for all packages it has available, without any filtering or other criteria. If this were to grow to support multiple applications and lots of versions, some basic parameters on the list query would be a good idea.
 
@@ -48,8 +48,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 * golang >=1.10
 * bash
-* curl (is it?)
-* docker, for containerized deployment and testing (usable without on a [unix system](https://media.giphy.com/media/zWXSCGdE2nDYQ/giphy.gif))
+* docker, for containerized deployment and testing
 
 ### Installing
 

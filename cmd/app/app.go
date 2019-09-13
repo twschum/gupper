@@ -1,4 +1,5 @@
 /*
+
 Self-updating app, using a companion http server
 
 */
@@ -12,10 +13,11 @@ import (
 	"time"
 
 	"github.com/twschum/gupper/pkg/pkgmeta"
+	"github.com/twschum/gupper/pkg/store"
 	"github.com/twschum/gupper/pkg/update"
 )
 
-// may set at compile time
+// may be set at compile time
 var BuildVersion string = "0.0.0"
 var AppName string = "app"
 
@@ -26,11 +28,6 @@ var daemonize = flag.Bool("daemon", false, "mimic daemon-like behaviour that wou
 
 func main() {
 	flag.Parse()
-	base, err := url.Parse("http://" + *updateHost + *updatePort)
-	if err != nil {
-		log.Println("ERROR: bad update host:", err)
-		return
-	}
 	current, err := pkgmeta.ThisPackageMeta(&BuildVersion, &AppName)
 	if err != nil {
 		log.Println("ERROR: Unable to determine self version:", err)
@@ -42,9 +39,17 @@ func main() {
 	} else {
 		log.Println(current)
 	}
+
+	base, err := url.Parse("http://" + *updateHost + *updatePort)
+	if err != nil {
+		log.Println("ERROR: bad update host:", err)
+		return
+	}
+	repository := store.Fileserver{*base}
+
 	first := true
 	for *daemonize || first {
-		updated, err := update.Check(&current, base)
+		updated, err := update.Check(repository, &current)
 		if err != nil {
 			log.Println("ERROR: Unable to update:", err)
 		} else if updated.GT(current.Version) {
