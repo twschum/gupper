@@ -75,18 +75,19 @@ $ server
 $ app
 2019/09/12 19:28:55 app version 0.0.0 darwin/amd64
 2019/09/12 19:28:55 Checking for updates
-2019/09/12 19:28:55 Downloading latest package version 1.9.3 from
-http://localhost:8080/download/app-1.9.3-darwin-amd64
+2019/09/12 19:28:55 GET from http://localhost:8080/list
+2019/09/12 19:28:55 GET from http://localhost:8080/download/app-1.9.3-darwin-amd64
 2019/09/12 19:28:55 Installing app-1.9.3-darwin-amd64 to app
 2019/09/12 19:28:55 Restarting...
 2019/09/12 19:28:55 app version 1.9.3 darwin/amd64
 2019/09/12 19:28:55 Checking for updates
+2019/09/12 19:28:55 GET from http://localhost:8080/list
 2019/09/12 19:28:55 Up to date
 doing useful work now...
 ```
 
 The server can be run directly, or in the docker container, provided a package directory and external port will run the server in the background:
-`docker run -d -p 8080:8080 -v $(pwd)/packages:/var/packages gupper-server` 
+`docker run -d -p 8080:8080 -v $(pwd)/packages:/var/packages gupper-server`
 
 The app can be run in the project dir as a one shot or with `--daemon` which will keep it running and checking for updates every 5 seconds.
 
@@ -101,11 +102,11 @@ C:\Users\twschum\go\src\github.com\twschum\gupper> app --host 192.168.3.101 --po
 2019/09/12 22:53:22 GET from http://192.168.3.101:8080/list
 2019/09/12 22:53:22 GET from http://192.168.3.101:8080/download/app-1.9.3-windows-amd64.exe
 2019/09/12 22:53:24 Installing app-1.9.3-windows-amd64.exe to C:\Users\Tim\go\bin\app.exe
-2019/09/12 19:28:55 Restarting...
-2019/09/12 19:28:55 app version 1.9.3 windows/amd64
-2019/09/12 19:28:55 Checking for updates
-2019/09/12 19:28:55 GET from http://192.168.3.101:8080/list
-2019/09/12 19:28:55 Up to date
+2019/09/12 22:53:24 Restarting...
+2019/09/12 22:53:24 app version 1.9.3 windows/amd64
+2019/09/12 22:53:25 Checking for updates
+2019/09/12 22:53:25 GET from http://192.168.3.101:8080/list
+2019/09/12 22:53:25 Up to date
 doing useful work now...
 ```
 
