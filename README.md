@@ -73,7 +73,7 @@ $ server
 
 ```
 $ app
-2019/09/12 19:28:55 appetizer version 0.0.0 darwin/amd64
+2019/09/12 19:28:55 app version 0.0.0 darwin/amd64
 2019/09/12 19:28:55 Checking for updates
 2019/09/12 19:28:55 Downloading latest package version 1.9.3 from
 http://localhost:8080/download/app-1.9.3-darwin-amd64
@@ -85,14 +85,28 @@ http://localhost:8080/download/app-1.9.3-darwin-amd64
 doing useful work now...
 ```
 
-The server can be run directly, or in the docker container, provided a package directory and external port
-`docker run -d -p 8080:8080 -v $(pwd)/packages:/var/packages gupper-server` will run the server in the background
+The server can be run directly, or in the docker container, provided a package directory and external port will run the server in the background:
+`docker run -d -p 8080:8080 -v $(pwd)/packages:/var/packages gupper-server` 
 
 The app can be run in the project dir as a one shot or with `--daemon` which will keep it running and checking for updates every 5 seconds.
 
-If the app is running in daemon mode, try adding some updated packages to the package dir
+With the app is running in daemon mode, try adding some updated packages to the package dir. It should pick up the changes.
+`build_packages.sh 1.3`
+
+Running from a Windows 10 desktop, to an OS X machine on the local network running the server:
 ```
-build_packages.sh 1.3
+C:\Users\twschum\go\src\github.com\twschum\gupper> app --host 192.168.3.101 --port :8080
+2019/09/12 22:53:22 app version 0.0.0 windows/amd64
+2019/09/12 22:53:22 Checking for updates
+2019/09/12 22:53:22 GET from http://192.168.3.101:8080/list
+2019/09/12 22:53:22 GET from http://192.168.3.101:8080/download/app-1.9.3-windows-amd64.exe
+2019/09/12 22:53:24 Installing app-1.9.3-windows-amd64.exe to C:\Users\Tim\go\bin\app.exe
+2019/09/12 19:28:55 Restarting...
+2019/09/12 19:28:55 app version 1.9.3 windows/amd64
+2019/09/12 19:28:55 Checking for updates
+2019/09/12 19:28:55 GET from http://192.168.3.101:8080/list
+2019/09/12 19:28:55 Up to date
+doing useful work now...
 ```
 
 ## Testing
@@ -106,7 +120,7 @@ The bash script `testing.sh` is provided, and will by default run go unit tests 
 
 ## Deployment
 
-The application can be compiled for anything in the [go architecture and os list](https://github.com/golang/go/blob/master/src/go/build/syslist.go), and has been tested on darwin/amd64, TODO
+The application can be compiled for anything in the [go architecture and os list](https://github.com/golang/go/blob/master/src/go/build/syslist.go), and has been tested on darwin/amd64 and windows/amd64
 
 The server and testing requires and environment that can compile and run golang, run a docker container, and has unix-like bash. The server assumes a unix-like environment.
 
