@@ -3,6 +3,8 @@
 Interface to some system which provides a list of files,
 and allows downloading said file
 
+Fileserver is an implementation of the Store interface
+
 */
 
 package store

@@ -1,6 +1,12 @@
 /*
 
-Makes determinations about package metadata
+All the metadata that should describe a compiled binary package,
+with methods to convert a specific filename format into that metadata
+
+Ex:
+ name-version-os-arch[.exe]
+ app-1.2-darwin-amd64
+ thing-4.12.1-windows-386.exe
 
 */
 package pkgmeta
@@ -17,7 +23,6 @@ import (
 )
 
 type PackageMeta struct {
-	// TODO need all these things findable in the built package
 	Filename string
 	App      string
 	Version  version.Version
@@ -29,9 +34,6 @@ func (pkg PackageMeta) String() string {
 	return fmt.Sprintf("%s version %s %s/%s", pkg.App, pkg.Version, pkg.OS, pkg.Arch)
 }
 
-// Package files include all their metadata in the name
-// name-version-os-arch[.exe]
-// app-1.2-darwin-amd64
 func Parse(pkgFile *string) (pkg PackageMeta, err error) {
 	pkg.Filename = *pkgFile
 	// remove the windows suffix, this is also where a .zip/.tar would be removed
@@ -50,7 +52,7 @@ func Parse(pkgFile *string) (pkg PackageMeta, err error) {
 	return pkg, nil
 }
 
-// Need to know what package this is to compare for updating
+// Determine this binary's metadata via runtime and args
 func ThisPackageMeta(buildVersion *string, appName *string) (pkg PackageMeta, err error) {
 	pkg.Filename = os.Args[0]
 	pkg.App = *appName
@@ -83,7 +85,7 @@ func GetLatestPackage(packages []PackageMeta, current *PackageMeta) PackageMeta 
 	return PackageMeta{}
 }
 
-// Get vaild meta data from a list of package file names
+// Get valid meta data from a list of package file names
 func AvailablePackages(packageFiles []string) (packages []PackageMeta) {
 	for _, file := range packageFiles {
 		pkg, err := Parse(&file)
