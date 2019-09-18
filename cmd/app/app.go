@@ -42,7 +42,7 @@ func main() {
 
 	base, err := url.Parse("http://" + *updateHost + *updatePort)
 	if err != nil {
-		log.Println("ERROR: bad update host:", err)
+		log.Println("ERROR: Bad update host:", err)
 		return
 	}
 	repository := store.Fileserver{*base}

@@ -12,7 +12,6 @@ Ex:
 package pkgmeta
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"runtime"
@@ -40,7 +39,7 @@ func Parse(pkgFile *string) (pkg PackageMeta, err error) {
 	s := strings.TrimSuffix(*pkgFile, ".exe")
 	parts := strings.SplitN(s, "-", 4)
 	if len(parts) != 4 {
-		return PackageMeta{}, errors.New(fmt.Sprintf("Invalid package name: %v", *pkgFile))
+		return PackageMeta{}, fmt.Errorf("invalid package name: %v", *pkgFile)
 	}
 	pkg.App = parts[0]
 	pkg.Version, err = version.Parse(parts[1])
